@@ -4,8 +4,8 @@ const Title = props => <h2>{props.text}</h2>
 
 const StatisticLine = ({text, value}) => <tr><td>{text}</td><td>{value}</td></tr>
 
-const Statistics = (props) => {
-  if(props.data.total === 0 ){
+const Statistics = ({bad, good, neutral, total}) => {
+  if(total === 0 ){
     return (
       <div>
         <p>No feedback given</p>
@@ -13,16 +13,21 @@ const Statistics = (props) => {
     )
   }
 
+  const roundedNum = num => num.toFixed(1)
+
+  const averageScore =  total > 0 ? roundedNum(((good * 1) + (neutral * 0) + (bad * -1)) / total) : 0
+  const percentageGoodScore =  total > 0 ? roundedNum((good / total) * 100) : 0
+
   return (
     <div>
       <table>
         <tbody>
-          <StatisticLine text='good' value={props.data.good} />
-          <StatisticLine text='neutral' value={props.data.neutral} />
-          <StatisticLine text='bad' value={props.data.bad} />
-          <StatisticLine text='all' value={props.data.total} />
-          <StatisticLine text='average' value={props.data.avg} />
-          <StatisticLine text='positive' value={props.data.pct} />
+          <StatisticLine text='good' value={good} />
+          <StatisticLine text='neutral' value={neutral} />
+          <StatisticLine text='bad' value={bad} />
+          <StatisticLine text='all' value={total} />
+          <StatisticLine text='average' value={averageScore} />
+          <StatisticLine text='positive' value={percentageGoodScore + ' %'} />
         </tbody>
       </table>
     </div>
@@ -59,26 +64,7 @@ const App = () => {
     setBad(updatedBad)
     setTotal(good + neutral + updatedBad)
   }
-
-  const averageScore = () =>  ((good * 1) + (neutral * 0) + (bad * -1)) / total
   
-
-
-  const percentagePositiveFeedback = () => {
-    const percent = (good / total) * 100
-    return `${percent} %`
-  }
-
-  const data = {
-    good: good,
-    bad: bad,
-    neutral: neutral,
-    total: total,
-    avg: averageScore(),
-    pct: percentagePositiveFeedback()
-  }
-
-
   return (
     <div>
       <Title text='give feedback' />
@@ -86,7 +72,7 @@ const App = () => {
       <Button handleClick={handleNeutralClick} text='neutral' />
       <Button handleClick={handleBadClick} text='bad' />
       <Title text='statistic' />
-      <Statistics data={data} />
+      <Statistics bad={bad} good={good} neutral={neutral} total={total} />
     </div>
   )
 }
