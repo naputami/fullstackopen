@@ -1,7 +1,8 @@
 import React from 'react'
 import Person from './Person'
 
-const Persons = ({persons, filteredPerson, filterName}) => {
+
+const Persons = ({persons, filteredPerson, filterName, toggleDelete}) => {
     if(persons.length === 0) {
         return (
             <p>No contact is saved yet</p>
@@ -18,7 +19,7 @@ const Persons = ({persons, filteredPerson, filterName}) => {
 
     return (
         <div>
-            {showData.map(data=> <Person key={data.id} name={data.name} number={data.number}/>)}
+            {showData.map(data=> <Person key={data.id} name={data.name} number={data.number} id={data.id} toggleDelete={toggleDelete}/>)}
         </div>
     )
 
