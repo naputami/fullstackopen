@@ -11,3 +11,26 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.countryList {
+  list-style: none;
+  padding-left: 1rem;
+}
+
+.countryItem {
+  margin-bottom: 1rem;
+}
+
+.countryItem button {
+  display: inline-block;
+  margin-left: 0.5rem;
+}
+
+.infodisplay {
+  margin-left: 1rem;
+}
+
+.findCountries {
+  margin-left: 1rem;
+  margin-top: 2rem;
+}
