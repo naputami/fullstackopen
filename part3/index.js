@@ -1,7 +1,11 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 
 app.use(express.json())
+
+morgan.token('req-body', (req) => JSON.stringify(req.body));
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-body'));
 
 let persons = [
     { 
@@ -56,11 +60,9 @@ app.delete('/api/persons/:id', (request, response) => {
     response.status(204).end()
 })
 
-const generateId = () => {
-    const range = 1000000; 
-    const randomNum = Math.floor(Math.random() * range)
-    return randomNum
-}
+const generateId = () =>  Math.floor(Math.random() * 1000000)
+   
+
   
 app.post('/api/persons', (request, response) => {
     const body = request.body
@@ -91,6 +93,7 @@ app.post('/api/persons', (request, response) => {
 })
   
 const PORT = 3001
-  app.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
+
