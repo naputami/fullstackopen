@@ -24,6 +24,7 @@ const App = () => {
     .catch(error => {
       console.log(error)
       setMessageContent(`Error: ${error}`)
+      setMessageType('error')
     })
   }, [])
 
@@ -103,9 +104,22 @@ const App = () => {
     if(window.confirm(`Delete ${namePersonToDelete}?`)){
       phonebookServices
         .deletePersonObj(id)
-
-      setPersons(persons.filter(person => person.id !== id))
+        .then(response => {
+          console.log(response)
+          setPersons(persons.filter(person => person.id !== id))
+          setMessageContent(`Information of ${namePersonToDelete} has successfully been removed from server.`)
+          setMessageType('success')
+        })
+        .catch(error => {
+          console.log(error.message)
+          setMessageContent(`Information of ${namePersonToDelete} has already been removed from server. Please refresh the browser.`)
+          setMessageType('error')
+        })
     }
+
+    setTimeout(() => {
+      setMessageContent(null)
+    }, 5000)
     
   }
 
