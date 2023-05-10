@@ -73,8 +73,8 @@ const App = () => {
       setMessageType('success')
     })
     .catch(error => {
-      console.log(error.message)
-      setMessageContent(error.message)
+      console.log(error.response.data.error)
+      setMessageContent(error.response.data.error)
       setMessageType('error')
     })
 
