@@ -11,11 +11,12 @@ const User = require('../models/user')
 beforeEach(async () => {
     await Blog.deleteMany({})
 
-    let blogObj = new Blog(helper.initialBlogs[0])
-    await blogObj.save()
+    const blogObjects= helper.initialBlogs.map(blog => new Blog(blog))
+    const promiseBlogs = blogObjects.map(blog => blog.save())
+    Promise.all(promiseBlogs)
 
-    blogObj = new Blog(helper.initialBlogs[1])
-    await blogObj.save()
+    const userPromises = helper.initialUsers.map(user => api.post('/api/users').send(user))
+    await Promise.all(userPromises)
 })
 
 test('blogs are returned as json', async () => {
@@ -34,6 +35,12 @@ test('every blogs have id', async () => {
 })
 
 test('can add a valid blog', async () => {
+    const user = helper.initialUsers[0]
+    delete user.name
+
+    const userLogin = await api.post('/api/login').send(user)
+    const token = userLogin.body.token
+
     const newBlog = {
         title: "Testing with Jest",
         author: "Mika Yamada",
@@ -44,17 +51,25 @@ test('can add a valid blog', async () => {
     await api
         .post('/api/blogs')
         .send(newBlog)
+        .set('Authorization', `Bearer ${token}`)
         .expect(201)
+        .expect('Content-Type', /application\/json/)
     
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
 
     const titles = blogsAtEnd.map(item => item.title)
-    expect(titles).toContain("Testing with Jest")
+    expect(titles).toContain(newBlog.title)
 
 }, 10000)
 
 test('automatically added 0 likes', async () => {
+    const user = helper.initialUsers[0]
+    delete user.name
+
+    const userLogin = await api.post('/api/login').send(user)
+    const token = userLogin.body.token
+
     const newBlog = {
         title: "React for 5 years old",
         author: "Delonix Ann",
@@ -64,17 +79,25 @@ test('automatically added 0 likes', async () => {
     await api
         .post('/api/blogs')
         .send(newBlog)
+        .set('Authorization', `Bearer ${token}`)
         .expect(201)
+        .expect('Content-Type', /application\/json/)
     
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
 
-    const addedBlog = blogsAtEnd.find(item => item.title === "React for 5 years old")
+    const addedBlog = blogsAtEnd.find(item => item.title === newBlog.title)
     expect(addedBlog.likes).toEqual(0)
     
 }, 10000)
 
 test('return 400 code if no title', async () => {
+    const user = helper.initialUsers[0]
+    delete user.name
+
+    const userLogin = await api.post('/api/login').send(user)
+    const token = userLogin.body.token
+
     const newBlog = {
         author: "Delonix Ann",
         url: "https://reacttips.com",
@@ -84,11 +107,18 @@ test('return 400 code if no title', async () => {
     await api
         .post('/api/blogs')
         .send(newBlog)
+        .set('Authorization', `Bearer ${token}`)
         .expect(400)
     
 }, 10000)
 
 test('return 400 code if no url', async () => {
+    const user = helper.initialUsers[0]
+    delete user.name
+
+    const userLogin = await api.post('/api/login').send(user)
+    const token = userLogin.body.token
+
     const newBlog = {
         title: "Testing React for Dummies",
         author: "Andy Malarangeng",
@@ -98,8 +128,23 @@ test('return 400 code if no url', async () => {
     await api
         .post('/api/blogs')
         .send(newBlog)
+        .set('Authorization', `Bearer ${token}`)
         .expect(400)
     
+}, 10000)
+
+test('return 401 code if no authorized', async () => {
+    const newBlog = {
+        title: "Testing React for Dummies",
+        author: "Andy Malarangeng",
+        likes: 3
+    }
+
+    await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(401)
+
 }, 10000)
 
 test('a note can be deleted', async () => {

@@ -16,6 +16,19 @@ const initialBlogs = [
     }
 ]
 
+const initialUsers = [
+    {
+        name: "Nick Saturday",
+        username: "saturday_n",
+        password: "ghjop23"
+    }, 
+    {
+        name: "Angela Ibaraki",
+        username: "angelaccchi",
+        password: "aouty12"
+    }
+]
+
 const nonExistingId = async () => {
     const note = new Blog(
         {   title: 'willdeletelater',
@@ -43,5 +56,6 @@ module.exports = {
     initialBlogs, 
     nonExistingId, 
     blogsInDb,
-    usersInDb
+    usersInDb,
+    initialUsers
 }
