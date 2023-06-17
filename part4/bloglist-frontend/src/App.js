@@ -1,5 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
+import LoginForm from './components/LoginForm'
+import BlogForm from './components/BlogForm'
+import Toggleable from './components/Toggleable'
 import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -7,11 +10,6 @@ import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [newTitle, setNewTitle] = useState('')
-  const [newAuthor, setNewAuthor] = useState('')
-  const [newUrl, setNewUrl] = useState('')
-  const [username, setUsername] = useState('') 
-  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [notifMessage, setNotifMessage] = useState(null)
   const [messageType, setMessageType] = useState('')
@@ -38,15 +36,14 @@ const App = () => {
   
   }, [user])
 
-const handleLogin = async event => {
-  event.preventDefault()
+  const blogFormRef = useRef()
+
+const handleLogin = async userObj => {
   try {
-      const user = await loginService.login({username, password})
+      const user = await loginService.login(userObj)
       blogService.setToken(user.token)
       window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
       setUser(user)
-      setUsername('')
-      setPassword('')
   } catch (exception) {
       setNotifMessage('Wrong password or username')
       setMessageType('error')
@@ -56,22 +53,12 @@ const handleLogin = async event => {
   }
 }
 
-const addNewBlog = async (event) => {
-  event.preventDefault()
-
-  const obj = {
-    title: newTitle,
-    author: newAuthor,
-    url: newUrl
-  }
+const addNewBlog = async blogObj => {
 
   try {
-    const response = await blogService.createBlog(obj)
-
+    const response = await blogService.createBlog(blogObj)
     setBlogs(blogs.concat(response))
-    setNewTitle('')
-    setNewAuthor('')
-    setNewUrl('')
+    blogFormRef.current.toggleVisibility()
     setNotifMessage(`a new blog ${response.title} by ${response.author} added`)
     setMessageType('success')
     setTimeout(() => {
@@ -86,55 +73,7 @@ const addNewBlog = async (event) => {
   }
 
 }
-const blogForm = () => (
-  <>
-    <div>
-      <h2>Create a new blog</h2>
-    </div>
-    <form onSubmit={addNewBlog}>
-      <div>title: <input
-      value={newTitle}
-      onChange={({target}) => setNewTitle(target.value)}
-    /></div>
-     <div>author: <input
-      value={newAuthor}
-      onChange={({target}) => setNewAuthor(target.value)}
-    /></div>
-     <div>url: <input
-      value={newUrl}
-      onChange={({target}) => setNewUrl(target.value)}
-    /></div>
-    
-    <button type="submit">create</button>
-  </form>  
-  
-  </>
 
-)
-
-const loginForm = () => (
-  <form onSubmit={handleLogin}>
-    <div>
-      username
-        <input
-        type="text"
-        value={username}
-        name="Username"
-        onChange={({ target }) => setUsername(target.value)}
-      />
-    </div>
-    <div>
-      password
-        <input
-        type="password"
-        value={password}
-        name="Password"
-        onChange={({ target }) => setPassword(target.value)}
-      />
-    </div>
-    <button type="submit">login</button>
-  </form>      
-)
 
 const toggleLogOut = () => {
   window.localStorage.removeItem('loggedBlogAppUser')
@@ -142,18 +81,20 @@ const toggleLogOut = () => {
   setBlogs([])
 }
 
-console.log(blogs)
-
   return (
     <div>
       <h1>Blogs</h1>
 
       <Notification message={notifMessage} type={messageType} />
       
-      {user == null ? loginForm() : <div>
+      {user == null ? 
+      <LoginForm  handleLogin={handleLogin} /> : 
+      <div>
         <p>{user.name} logged in</p>
         <button onClick={() => toggleLogOut()}>Logout</button>
-        {blogForm()}
+        <Toggleable buttonLabel ="new blog" ref={blogFormRef}>
+          <BlogForm createBlog={addNewBlog} />
+        </Toggleable>
         <h2>blogs</h2>
           {blogs.map(blog =>
             <Blog key={blog.id} blog={blog} />
