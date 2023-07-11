@@ -1,7 +1,7 @@
-import { useState } from "react"
+import { useState } from 'react'
 import PropTypes from 'prop-types'
 
-const Blog = ({blog, updateBlog, deleteBlog}) => {
+const Blog = ({ blog, updateBlog, deleteBlog }) => {
 
   const [isShow, setIsShow] = useState(false)
   const [blogObj, setBlogObj] = useState(blog)
@@ -23,7 +23,7 @@ const Blog = ({blog, updateBlog, deleteBlog}) => {
       ...blog,
       likes: blog.likes + 1
     }
-    
+
     updateBlog(updatedBlog)
     setBlogObj(updatedBlog)
   }
@@ -37,15 +37,15 @@ const Blog = ({blog, updateBlog, deleteBlog}) => {
 
   return (
     <div style={blogStyle} className="blog-item">
-      {blog.title} By {blog.author} <button onClick={() => setIsShow(!isShow)}>{isShow? 'Hide': 'View'}</button>
+      <span className='blog-title'>{blog.title}</span> By <span className='blog-author'>{blog.author}</span> <button className='show-hide-blog' onClick={() => setIsShow(!isShow)}>{isShow? 'Hide': 'View'}</button>
       {isShow && <div>
-      <p>{blog.url}</p>
-      <p>Likes {blogObj.likes}<button onClick={increaseLikes}>like</button></p>
-      <p>{blog.user.name}</p>
-      <button onClick={removeBlog}>Remove</button>
+        <p className='blog-url'>{blog.url}</p>
+        <p className='blog-likes'>Likes {blogObj.likes}<button className='like-button' onClick={increaseLikes}>like</button></p>
+        <p className='blog-username'>{blog.user.name}</p>
+        <button onClick={removeBlog}>Remove</button>
       </div>
       }
-    </div>  
+    </div>
   )
 }
 
