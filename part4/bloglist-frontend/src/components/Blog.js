@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import PropTypes from 'prop-types'
 
-const Blog = ({ blog, updateBlog, deleteBlog }) => {
+const Blog = ({ blog, updateBlog, deleteBlog, username }) => {
 
   const [isShow, setIsShow] = useState(false)
   const [blogObj, setBlogObj] = useState(blog)
@@ -42,7 +42,7 @@ const Blog = ({ blog, updateBlog, deleteBlog }) => {
         <p className='blog-url'>{blog.url}</p>
         <p className='blog-likes'>Likes {blogObj.likes}<button className='like-button' onClick={increaseLikes}>like</button></p>
         <p className='blog-username'>{blog.user.name}</p>
-        <button onClick={removeBlog}>Remove</button>
+        {username === blog.user.name ? <button onClick={removeBlog} className='delete-button'>Remove</button> : null}
       </div>
       }
     </div>

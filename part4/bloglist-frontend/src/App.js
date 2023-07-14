@@ -16,16 +16,6 @@ const App = () => {
 
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
-    if(loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      console.log(user)
-      blogService.setToken(user.token)
-    }
-  }, [])
-
-  useEffect(() => {
     const fetchblogs = async () => {
       const blogs = await blogService.getAll()
 
@@ -35,6 +25,18 @@ const App = () => {
     fetchblogs()
 
   }, [user])
+
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
+    if(loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+      console.log(user)
+      blogService.setToken(user.token)
+    }
+  }, [])
+
+
 
   const blogFormRef = useRef()
 
@@ -88,8 +90,7 @@ const App = () => {
     try {
       const findBlogToDelete = blogs.find(blog => blog.id === blogObj.id)
       if(window.confirm(`Remove blog ${findBlogToDelete.title} by ${findBlogToDelete.author} `)){
-        const response = await blogService.deleteBlog(blogObj)
-        console.log(response)
+        await blogService.deleteBlog(blogObj)
         setBlogs(blogs.filter(blog => blog.id !== blogObj.id))
         setNotifMessage(`Blog ${blogObj.title} by ${blogObj.author} sucessfully removed`)
         setMessageType('success')
@@ -99,7 +100,7 @@ const App = () => {
 
       }
     } catch (error) {
-      setNotifMessage(error)
+      setNotifMessage(error.message)
       setMessageType('error')
       setTimeout(() => {
         setNotifMessage(null)
@@ -128,7 +129,7 @@ const App = () => {
             <BlogForm createBlog={addNewBlog} />
           </Toggleable>
           {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} updateBlog={handleUpdateBlog} deleteBlog={handleDeleteBlog} />
+            <Blog key={blog.id} blog={blog} updateBlog={handleUpdateBlog} deleteBlog={handleDeleteBlog} username={user.name} />
           )}
         </div>}
     </div>
