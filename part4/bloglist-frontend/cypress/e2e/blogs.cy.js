@@ -136,5 +136,51 @@ describe('Blog app', function(){
       })
     })
 
+    describe('Blogs can be ordered by number of likes', function(){
+      beforeEach(function(){
+        cy.createBlog({
+          title: 'The title with the most likes',
+          author: 'Author 1',
+          url: 'www.nolink.com'
+        })
+        cy.createBlog({
+          title: 'The title with the least likes',
+          author: 'Author 2',
+          url: 'www.nolink.com'
+        })
+        cy.createBlog({
+          title: 'The title with the second likes',
+          author: 'Author 3',
+          url: 'www.nolink.com'
+        })
+        cy.contains('The title with the most likes By Author 1').as('blog1')
+        cy.contains('The title with the least likes By Author 2').as('blog2')
+        cy.contains('The title with the second likes By Author 3').as('blog3')
+      })
+
+      it('ordered by number of likes', function(){
+        cy.get('@blog1').contains('View').click()
+        cy.get('.like-button').click({ multiple: true })
+        cy.wait(500)
+        cy.get('.like-button').click({ multiple: true })
+        cy.wait(500)
+        cy.get('.like-button').click({ multiple: true })
+        cy.wait(500)
+
+        cy.get('@blog3').contains('View').click()
+        cy.get('.like-button').click({ multiple: true })
+        cy.wait(500)
+        cy.get('.like-button').click({ multiple: true })
+        cy.wait(500)
+
+        cy.get('@blog2').contains('View').click()
+        cy.get('.like-button').click({ multiple: true })
+        cy.wait(500)
+
+        cy.get('.blog-item').eq(0).should('contain', 'The title with the most likes By Author 1')
+        cy.get('.blog-item').eq(1).should('contain', 'The title with the second likes By Author 3')
+        cy.get('.blog-item').eq(2).should('contain', 'The title with the least likes By Author 2')
+      })
+    })
   })
 })

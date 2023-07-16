@@ -128,9 +128,11 @@ const App = () => {
           <Toggleable buttonLabel ="new blog" ref={blogFormRef}>
             <BlogForm createBlog={addNewBlog} />
           </Toggleable>
-          {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} updateBlog={handleUpdateBlog} deleteBlog={handleDeleteBlog} username={user.name} />
-          )}
+          <div id='blogs-container'>
+            {blogs.map(blog =>
+              <Blog key={blog.id} blog={blog} updateBlog={handleUpdateBlog} deleteBlog={handleDeleteBlog} username={user.name} />
+            )}
+          </div>
         </div>}
     </div>
   )
