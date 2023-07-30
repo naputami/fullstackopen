@@ -1,5 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
-import { toggleVote } from "../reducers/anecdoteReducer";
+import { toggleVoteAnecdote } from "../reducers/anecdoteReducer";
+import { setNotification } from "../reducers/notificationReducer";
+
 
 const Anecdote = ({anecdote, voteHandler}) => {
     return (
@@ -17,11 +19,22 @@ const Anecdote = ({anecdote, voteHandler}) => {
 
 const AnecdoteList = () => {
     const dispatch = useDispatch()
-    const anecdotes = useSelector(state => state)
+    const test = (anecdote) => {
+        dispatch(toggleVoteAnecdote(anecdote))
+        dispatch(setNotification(anecdote))
+    }
+
+    const anecdotes = useSelector(({anecdotes, filter}) => {
+        if(filter === ''){
+            return anecdotes
+        }
+
+        return anecdotes.filter(anecdote => anecdote.content.toLowerCase().includes(filter.toLowerCase()))
+    })
 
     return (
         <>
-            {anecdotes.map(anecdote => <Anecdote key={anecdote.id} anecdote={anecdote} voteHandler={() => dispatch(toggleVote(anecdote.id))} />)}
+            {anecdotes.map(anecdote => <Anecdote key={anecdote.id} anecdote={anecdote} voteHandler={() => test(anecdote)} />)}
         </>
     )
 }
