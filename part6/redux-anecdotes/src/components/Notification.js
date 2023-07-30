@@ -6,9 +6,7 @@ import { useDispatch } from 'react-redux'
 
 const Notification = () => {
   const dispatch = useDispatch()
-  const notif = useSelector(({notification}) => {
-    return notification
-  })
+  const notif = useSelector(({notification}) => notification)
 
   useEffect(() => {
     if (notif) {
