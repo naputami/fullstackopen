@@ -2,8 +2,12 @@ import AnecdoteForm from './components/AnecdoteForm'
 import Notification from './components/Notification'
 import { getAnecdotes, updateVote } from './request'
 import { useQuery, useQueryClient, useMutation } from 'react-query'
+import { useNotifContent, useNotifDispatch } from './NotifContext'
+
 
 const App = () => {
+  const notifContent = useNotifContent()
+  const notifDispatch = useNotifDispatch()
 
   const queryClient = useQueryClient()
 
@@ -22,8 +26,17 @@ const App = () => {
     updateVoteMutation.mutate(updatedAnecdote)
   }
 
+  const test = (anecdote) => {
+    handleVote(anecdote)
+    notifDispatch({type: 'SHOW_NOTIF', payload: `You voted ${anecdote.content}` })
+    setTimeout(()=> {
+      notifDispatch({type: 'REMOVE_NOTIF'})
+    }, 5000)
+  }
+
   const result = useQuery('anecdotes', getAnecdotes, {
-    retry: false
+    retry: false,
+    refetchOnWindowFocus: false
   })
 
   if ( result.isLoading ) {
@@ -41,8 +54,8 @@ const App = () => {
   return (
     <div>
       <h3>Anecdote app</h3>
+      <Notification content={notifContent}/>
     
-      <Notification />
       <AnecdoteForm />
     
       {anecdotes.map(anecdote =>
@@ -52,7 +65,7 @@ const App = () => {
           </div>
           <div>
             has {anecdote.votes}
-            <button onClick={() => handleVote(anecdote)}>vote</button>
+            <button onClick={() => test(anecdote)}>vote</button>
           </div>
         </div>
       )}
