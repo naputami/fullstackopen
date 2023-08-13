@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import {
-  Routes, Route, Link, useMatch
+  Routes, Route, Link, useMatch, useNavigate
 } from 'react-router-dom'
+import { useField } from './hooks'
 
 
 const Menu = () => {
@@ -18,11 +19,12 @@ const Menu = () => {
   )
 }
 
-const Anecdote = ({anecdote}) => (
+const Anecdote = ({anecdote, voteHandler}) => (
   <div>
     <h3>{anecdote.content} by {anecdote.author}</h3>
     <p>has {anecdote.votes}</p>
     <p>for more info see <a href={anecdote.info}>{anecdote.info}</a></p>
+    <button type='button' onClick={voteHandler}>vote</button>
   </div>
 )
 
@@ -70,39 +72,60 @@ const Notification = ({notification}) => {
 }
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
+  // const [content, setContent] = useState('')
+  // const [author, setAuthor] = useState('')
+  // const [info, setInfo] = useState('')
+  const [notification, setNotification] = useState('')
+  const navigate = useNavigate()
+  const [content, resetContentField] = useField('content')
+  const [author, resetAuthorField] = useField('author')
+  const [info, resetInfoField] = useField('info')
 
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    props.addNew({
-      content,
-      author,
-      info,
-      votes: 0
-    })
+    if(e.type === 'submit') {
+      props.addNew({
+        content: content.value,
+        author: author.value,
+        info: info.value,
+        votes: 0
+      })
+      setNotification(`a new anecdote ${content.value} created`)
+      setTimeout(() => {
+        setNotification('')
+        navigate('/')
+      }, 5000)
+  
+    }
+  
+  }
+
+  const resetForm = () => {
+    resetContentField()
+    resetAuthorField()
+    resetInfoField()
   }
 
   return (
     <div>
       <h2>create a new anecdote</h2>
-      <Notification notification={props.notification} />
+      <Notification notification={notification} />
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          <input {...content} />
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input {...author} />
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e)=> setInfo(e.target.value)} />
+          <input {...info} />
         </div>
-        <button>create</button>
+        <button type='submit'>create</button>
+        <button type='button' onClick={resetForm}>reset</button>
       </form>
     </div>
   )
@@ -127,29 +150,25 @@ const App = () => {
     }
   ])
 
-  const [notification, setNotification] = useState('')
+
 
   const addNew = (anecdote) => {
     anecdote.id = Math.round(Math.random() * 10000)
     setAnecdotes(anecdotes.concat(anecdote))
-    setNotification(`a new anedote ${anecdote.content} created`)
-    setTimeout(() => {
-      setNotification('')
-    }, 5000)
   }
 
   const anecdoteById = (id) =>
     anecdotes.find(a => a.id === id)
 
-  const vote = (id) => {
-    const anecdote = anecdoteById(id)
+  const vote = (anecdote) => {
+    const anecdoteToVote = anecdoteById(anecdote.id)
 
     const voted = {
-      ...anecdote,
-      votes: anecdote.votes + 1
+      ...anecdoteToVote,
+      votes: anecdoteToVote.votes + 1
     }
 
-    setAnecdotes(anecdotes.map(a => a.id === id ? voted : a))
+    setAnecdotes(anecdotes.map(a => a.id === anecdote.id ? voted : a))
   }
 
   const match = useMatch('/anecdotes/:id')
@@ -161,8 +180,8 @@ const App = () => {
       <Menu />
       <Routes>
         <Route path='/' element={<AnecdoteList anecdotes={anecdotes} />} />
-        <Route path="/anecdotes/:id" element={<Anecdote anecdote={anecdote} />} />
-        <Route path='/create' element={<CreateNew addNew={addNew} notification={notification}/>} />
+        <Route path="/anecdotes/:id" element={<Anecdote anecdote={anecdote} voteHandler={() => vote(anecdote)}/>} />
+        <Route path='/create' element={<CreateNew addNew={addNew} />} />
         <Route path='/about' element={<About />} />
       </Routes>
       <Footer />
