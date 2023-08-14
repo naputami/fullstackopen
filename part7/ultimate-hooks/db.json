@@ -1,0 +1,46 @@
+{
+  "notes": [
+    {
+      "id": 1,
+      "content": "custom hooks are awesome"
+    },
+    {
+      "id": 2,
+      "content": "best feature ever <3"
+    },
+    {
+      "content": "put",
+      "id": 3
+    },
+    {
+      "content": "testing notes",
+      "id": 4
+    },
+    {
+      "content": "dont be afraid of making mistake in learning",
+      "id": 5
+    }
+  ],
+  "persons": [
+    {
+      "id": 1,
+      "name": "Matti Luukkainen",
+      "number": "040-12344565"
+    },
+    {
+      "id": 2,
+      "name": "Tarja Halonen",
+      "number": "040-2223334"
+    },
+    {
+      "name": "Sunny",
+      "number": "089-334-29876",
+      "id": 3
+    },
+    {
+      "name": "Nadine Winter",
+      "number": "12345-09876-3321",
+      "id": 4
+    }
+  ]
+}
